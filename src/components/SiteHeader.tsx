@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { navLinks } from "@/lib/site";
-import { Wordmark } from "./Wordmark";
+import { Logo } from "./Logo";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -35,9 +35,9 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-[1320px] items-center justify-between px-5 sm:px-8 lg:h-[72px]">
-        <a href="#top" className="text-cream" onClick={() => setOpen(false)}>
-          <Wordmark />
-          <span className="sr-only">, back to top</span>
+        <a href="#top" className="-my-2 py-2" onClick={() => setOpen(false)} aria-label="Dash of Digital, back to top">
+          <Logo height={30} decorative className="lg:hidden" />
+          <Logo height={38} decorative className="hidden lg:block" />
         </a>
 
         <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">
@@ -52,7 +52,7 @@ export function SiteHeader() {
           ))}
           <a
             href="#early-access"
-            className="rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-lilac"
+            className="rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-lilac sheen"
           >
             Join Early Access
           </a>
@@ -91,7 +91,7 @@ export function SiteHeader() {
                   onClick={() => setOpen(false)}
                   className="flex items-baseline gap-4 py-5 font-display text-3xl tracking-tight text-cream"
                 >
-                  <span className="eyebrow text-mist">0{i + 1}</span>
+                  <span className="eyebrow text-stone">0{i + 1}</span>
                   {link.label}
                 </a>
               </li>

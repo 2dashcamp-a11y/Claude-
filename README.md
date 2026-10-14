@@ -40,7 +40,10 @@ scripts/
 tests/                      Vitest unit tests (validation, handler, email, Supabase calls)
 docs/QA.md                  QA checklist: what's verified and what isn't
 docs/ROADMAP.md             DASH HQ / CRM integration roadmap
-docs/DESIGN-REFINEMENT.md   What the design refinement pass changed
+docs/DESIGN-REFINEMENT.md   What the design refinement passes changed
+docs/BRAND-ASSETS.md        Logo files, palette, typography
+docs/LAUNCH-CHECKLIST.md    Verified launch items + unresolved decisions
+brand-source/               Founder-provided original logo artwork (unchanged)
 docs/WORDPRESS-CONVERSION-PLAN.md  Plan for the WordPress block theme + waitlist plugin
 .env.example                Every environment variable, documented
 ```

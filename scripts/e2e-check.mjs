@@ -72,10 +72,10 @@ for (const [label, viewport] of [
   const { page, errors, context } = await newPage({ width: 1440, height: 900 });
   await page.goto(BASE_URL, { waitUntil: "networkidle" });
 
-  check("title", (await page.title()) === "Dash of Digital | Technology, Systems & Creative Agency");
+  check("title", (await page.title()) === "Dash of Digital | Creative-Tech Agency for Systems, Experiences & Brands");
   check("single h1", (await page.locator("h1").count()) === 1);
   const metaDesc = await page.locator('meta[name="description"]').getAttribute("content");
-  check("meta description", !!metaDesc && metaDesc.startsWith("Dash of Digital helps"));
+  check("meta description", !!metaDesc && metaDesc.startsWith("Dash of Digital is a high-touch"));
   check("og:image", (await page.locator('meta[property="og:image"]').count()) > 0);
 
   // Every in-page anchor resolves to an element.

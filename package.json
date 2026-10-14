@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "node scripts/e2e-check.mjs",
-    "export:waitlist": "node scripts/export-waitlist.mjs"
+    "export:waitlist": "node scripts/export-waitlist.mjs",
+    "test:launch": "node scripts/launch-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

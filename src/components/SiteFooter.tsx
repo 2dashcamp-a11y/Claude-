@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { navLinks, siteConfig } from "@/lib/site";
 import { CopyrightYear } from "./CopyrightYear";
-import { Wordmark } from "./Wordmark";
+import { Logo } from "./Logo";
 
 const BUILD_YEAR = 2026;
 
@@ -13,17 +13,21 @@ export function SiteFooter({ onHome = true }: { onHome?: boolean }) {
       <div className="mx-auto max-w-[1320px] px-5 pb-10 pt-16 sm:pt-20 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-6">
-            <Wordmark className="text-lg" />
+            <div className="flex items-end gap-6">
+              <Logo variant="stacked" height={92} />
+              <span aria-hidden="true" className="mb-1 h-20 w-px bg-gradient-to-b from-transparent via-stone/50 to-transparent" />
+              <Logo variant="monogram" height={52} decorative className="mb-1 opacity-90" />
+            </div>
             <p className="mt-6 max-w-sm font-serif text-2xl leading-snug text-cream/85">{siteConfig.tagline}</p>
             <p className="mt-4 max-w-sm text-[0.95rem] leading-relaxed text-cream/65">
-              A technology-led creative agency connecting the systems, experiences, and ideas that move businesses
-              forward. U.S.-based, working remotely with clients everywhere.
+              A creative-tech agency connecting strategy, systems, and creative direction into one cohesive business
+              experience. U.S.-based, working remotely with clients everywhere.
             </p>
           </div>
 
           <nav aria-label="Footer" className="grid grid-cols-2 gap-8 lg:col-span-6">
             <div>
-              <p className="eyebrow text-mist">Explore</p>
+              <p className="eyebrow text-stone">Explore</p>
               <ul className="mt-4 space-y-1 text-[0.95rem]">
                 {navLinks.map((link) => (
                   <li key={link.href}>
@@ -35,7 +39,7 @@ export function SiteFooter({ onHome = true }: { onHome?: boolean }) {
               </ul>
             </div>
             <div>
-              <p className="eyebrow text-mist">Contact & legal</p>
+              <p className="eyebrow text-stone">Contact & legal</p>
               <ul className="mt-4 space-y-1 text-[0.95rem]">
                 <li>
                   {siteConfig.contactEmail ? (

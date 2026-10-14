@@ -1,35 +1,36 @@
 import Image from "next/image";
 import { siteConfig } from "@/lib/site";
 import { Folio } from "./Folio";
+import { Logo } from "./Logo";
 
 const ecosystems = ["BILL", "QuickBooks Online", "NetSuite", "Sage Intacct", "Xero"];
 
 const creativeFoundation = ["Journalism & media", "Storytelling", "Design & creative direction"];
 
-/** Typographic portrait placeholder: the technical × creative intersection. Replaced by siteConfig.founderPhoto. */
-function PortraitPlaceholder() {
+/**
+ * Typographic composition shown on the retro monitor until a verified founder
+ * photo is set in siteConfig.founderPhoto: the (D) mark plus the
+ * systems × story pairing.
+ */
+function ScreenComposition() {
   return (
-    <div className="absolute inset-0 flex flex-col justify-between p-7 sm:p-9">
+    <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
       <div className="flex items-center justify-between">
-        <span className="eyebrow text-mist">Founder</span>
-        <span className="eyebrow text-mist">ATL / Remote</span>
+        <span className="eyebrow text-stone">Founder</span>
+        <span className="eyebrow text-stone">ATL / Remote</span>
       </div>
 
-      <div aria-hidden="true">
-        <p className="display text-[clamp(4rem,13vw,8rem)] leading-[0.82] text-cream">Dash</p>
-        <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-lilac">Systems</span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-[3px] w-8 bg-red" />
-            <span className="h-[3px] w-3 bg-magenta" />
-          </span>
-          <span className="text-right font-serif text-xl italic text-cream">story</span>
+      <div aria-hidden="true" className="flex flex-col items-center text-center">
+        <Logo variant="monogram" height={92} decorative className="drop-shadow-[0_0_24px_rgba(185,160,238,0.35)]" />
+        <div className="mt-6 flex items-center gap-4">
+          <span className="font-mono text-xs uppercase tracking-[0.16em] text-lilac">Systems</span>
+          <span className="h-px w-10" style={{ background: "var(--chrome)" }} />
+          <span className="font-serif text-2xl italic text-rosewood">story</span>
         </div>
-        <div className="mt-3 h-px bg-gradient-to-r from-lilac/70 via-magenta/70 to-red/70" />
       </div>
 
-      <figcaption>
-        <p className="font-display text-lg font-medium text-cream">Dashanay “Dash” Scott</p>
+      <figcaption className="text-center">
+        <p className="font-display text-xl font-medium text-cream">Dashanay “Dash” Scott</p>
         <p className="mt-1 text-[0.95rem] text-cream/65">Founder, Dash of Digital</p>
       </figcaption>
     </div>
@@ -42,10 +43,13 @@ export function Founder() {
       <div className="mx-auto grid max-w-[1320px] gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-12 lg:gap-10 lg:py-32">
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-28">
+            {/* Retro monitor: chrome bezel, CRT screen */}
+            <div className="mx-auto w-full max-w-md lg:mx-0" data-reveal>
             <figure
-              className="relative aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl border border-cream/15 bg-ink-2 sm:aspect-[4/5]"
-              data-reveal
+              className="relative rounded-[2rem] p-[10px] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]"
+              style={{ background: "var(--chrome)" }}
             >
+              <div className="crt relative aspect-square overflow-hidden rounded-[1.4rem] shadow-[inset_0_0_40px_rgba(0,0,0,0.8)] sm:aspect-[5/4]">
               {siteConfig.founderPhoto ? (
                 <Image
                   src={siteConfig.founderPhoto}
@@ -55,9 +59,15 @@ export function Founder() {
                   className="object-cover"
                 />
               ) : (
-                <PortraitPlaceholder />
+                <ScreenComposition />
               )}
+              {/* Glass reflection */}
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(155deg,rgba(255,255,255,0.10)_0%,transparent_38%)]" />
+              </div>
             </figure>
+            <div aria-hidden="true" className="mx-auto h-4 w-16" style={{ background: "linear-gradient(90deg,#6d6864,#cfcac5,#6d6864)" }} />
+            <div aria-hidden="true" className="mx-auto h-2 w-40 rounded-full" style={{ background: "var(--chrome)" }} />
+            </div>
           </div>
         </div>
 
@@ -80,7 +90,7 @@ export function Founder() {
               <em className="font-serif text-[1.1em] italic text-cream">and</em> rewrite the page your customers bounce
               from.
             </p>
-            <p className="border-l-[3px] border-red pl-5 text-cream">
+            <p className="border-l-[3px] border-oxblood pl-5 text-cream">
               After years helping businesses navigate software migrations, integrations, and the messy realities of
               technology, Dash founded Dash of Digital to bridge the gap between strategy, systems, and execution.
             </p>
@@ -93,14 +103,14 @@ export function Founder() {
               <p className="text-sm text-cream/60">Earned in prior roles, before Dash of Digital</p>
             </div>
 
-            <div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-cream/15 bg-cream/15 sm:grid-cols-2">
+            <div className="chrome-border mt-5 grid divide-y divide-cream/15 overflow-hidden rounded-2xl [--surface:var(--color-ink)] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
               <div className="bg-ink p-6 sm:p-7">
                 <p className="eyebrow text-lilac">Technical</p>
                 <dl className="mt-5 grid grid-cols-2 gap-5">
                   <div>
                     <dt className="sr-only">Years of experience</dt>
                     <dd>
-                      <span className="display block text-5xl text-cream">8</span>
+                      <span className="chrome-text display inline-block text-[2.6rem] leading-none">8</span>
                       <span className="mt-2 block text-[0.95rem] leading-snug text-cream/70">
                         years in IT & software implementation
                       </span>
@@ -109,7 +119,7 @@ export function Founder() {
                   <div>
                     <dt className="sr-only">Migration engagements</dt>
                     <dd>
-                      <span className="display block text-5xl text-cream">1,000+</span>
+                      <span className="chrome-text display inline-block whitespace-nowrap text-[2.6rem] leading-none">1,000+</span>
                       <span className="mt-2 block text-[0.95rem] leading-snug text-cream/70">
                         ERP & software migration engagements
                       </span>
@@ -125,11 +135,11 @@ export function Founder() {
                 </ul>
               </div>
               <div className="bg-ink p-6 sm:p-7">
-                <p className="eyebrow text-coral">Creative</p>
+                <p className="eyebrow text-rosewood">Creative</p>
                 <ul className="mt-5 space-y-4">
                   {creativeFoundation.map((c) => (
                     <li key={c} className="flex items-baseline gap-3 border-b border-cream/10 pb-4 last:border-0 last:pb-0">
-                      <span aria-hidden="true" className="h-[3px] w-4 shrink-0 -translate-y-1 bg-red" />
+                      <span aria-hidden="true" className="h-px w-5 shrink-0 -translate-y-1.5 bg-rosewood" />
                       <span className="font-serif text-2xl italic leading-tight text-cream">{c}</span>
                     </li>
                   ))}

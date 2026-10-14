@@ -14,9 +14,9 @@ export const siteConfig = {
   wordmark: "DASH OF DIGITAL",
   legalName: "Dash of Digital LLC",
   url: (clean(process.env.NEXT_PUBLIC_SITE_URL) ?? "http://localhost:3000").replace(/\/$/, ""),
-  title: "Dash of Digital | Technology, Systems & Creative Agency",
+  title: "Dash of Digital | Creative-Tech Agency for Systems, Experiences & Brands",
   description:
-    "Dash of Digital helps growing businesses connect their technology, automate workflows, modernize digital experiences, and build stronger brands.",
+    "Dash of Digital is a high-touch creative-tech partner that connects your systems, digital experiences, and creative direction into one cohesive business experience.",
   tagline: "Fluent in systems, people & whatever’s broken.",
   /** Public business email. Set NEXT_PUBLIC_CONTACT_EMAIL; null hides email links. */
   contactEmail: clean(process.env.NEXT_PUBLIC_CONTACT_EMAIL),

@@ -1,5 +1,8 @@
 # QA checklist
 
+**Final launch pass (October 14, 2026):** lint and typecheck are clean, unit tests are 25/25, and browser QA is 44/44 (including the axe accessibility audit at 375, 768 and 1440px). The real submission and duplicate handling were verified in Postgres. The full status, including unresolved items, is in [LAUNCH-CHECKLIST.md](LAUNCH-CHECKLIST.md).
+
+
 ## Design refinement pass — re-tested 2026-10-14
 
 These checks were all re-run on the refined design, against a production build connected to Postgres + PostgREST:

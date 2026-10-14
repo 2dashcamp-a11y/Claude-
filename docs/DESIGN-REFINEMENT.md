@@ -1,4 +1,27 @@
-# Design refinement pass (pre-WordPress)
+# Design refinement
+
+## Final direction: Editorial Retro-Future Luxury (October 14, 2026)
+
+This builds on the approved "after" layout; the structure is unchanged. Comparisons are in `screenshots/previous-vs-final/`.
+
+- **Logo:** the founder-provided artwork replaces the typed wordmark: primary horizontal in the header, stacked plus monogram in the footer, the monogram as favicon and Apple touch icon, and the real logo in the social preview. See BRAND-ASSETS.md.
+- **Palette:**
+  - Ink, Cream, Oxblood, Electric Violet and Stone, as specified. Red and magenta are retired.
+  - Oxblood is used selectively, for rules, the quote bar, required-field marks, button hover and the hero atmosphere.
+  - The discipline key is now Systems = violet, Experiences = stone/chrome, Creative = oxblood (rosewood on dark).
+- **Typography:** Playfair Display, an editorial Didone-style serif, for headlines, italic accents and large numerals; Inter for body text; JetBrains Mono for small labels.
+- **Retro-future details:**
+  - Chrome-gradient hairlines and numerals.
+  - Parenthesis curves echoing the (D): around the diagram hub, on the flagship card, and in the "(01)" section markers.
+  - Frosted-glass price panel and form card.
+  - The founder composition sits on a retro CRT monitor with a chrome bezel.
+  - The diagram hub is now the (D) monogram.
+  - A subtle sheen on buttons when hovered and a slight lift on cards. Both are turned off for visitors who prefer reduced motion.
+- **Messaging:** the hero supporting line and the meta description now present DOD as a high-touch creative-tech partner that connects systems, digital experiences and creative direction into one cohesive business experience. The headline is unchanged.
+
+---
+
+## Earlier pass (pre-WordPress)
 
 This pass refines the existing design; it is not a redesign. The original version is preserved on the `backup/nextjs-v1-original` branch, at commit `4dd1b95`.
 

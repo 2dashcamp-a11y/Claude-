@@ -1,10 +1,25 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 export const alt = "Dash of Digital — Your business has moving parts. We make them work together.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpengraphImage() {
+async function svgDataUri(file: string) {
+  const svg = await readFile(join(process.cwd(), "public/brand", file));
+  return `data:image/svg+xml;base64,${svg.toString("base64")}`;
+}
+
+export default async function OpengraphImage() {
+  const fontDir = join(process.cwd(), "src/app/fonts");
+  const [logo, monogram, serif, serifItalic] = await Promise.all([
+    svgDataUri("dod-logo-cream.svg"),
+    svgDataUri("dod-monogram-cream.svg"),
+    readFile(join(fontDir, "playfair-display-latin-500-normal.woff")),
+    readFile(join(fontDir, "playfair-display-latin-500-italic.woff")),
+  ]);
+
   return new ImageResponse(
     (
       <div
@@ -14,30 +29,35 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0B0B0D",
+          padding: "70px 80px",
           color: "#F5EFE4",
-          padding: "72px 80px",
+          background:
+            "radial-gradient(60% 80% at 85% 30%, rgba(118,38,60,0.55), transparent 70%), radial-gradient(40% 50% at 80% 55%, rgba(111,63,197,0.25), transparent 70%), #0B0B0D",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 30, letterSpacing: 6, fontWeight: 700 }}>
-          <span>DASH</span>
-          <span style={{ width: 40, height: 6, background: "#E33B30" }} />
-          <span>OF DIGITAL</span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <img src={logo} width={420} height={94} alt="" />
+          <img src={monogram} width={120} height={84} alt="" />
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 78, lineHeight: 1.02, letterSpacing: -2, fontWeight: 700, maxWidth: 980 }}>
-            Your business has moving parts.
-          </div>
-          <div style={{ fontSize: 78, lineHeight: 1.02, letterSpacing: -2, fontWeight: 700, color: "#B9A0EE" }}>
-            We make them work together.
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", fontFamily: "Playfair", fontSize: 80, lineHeight: 1.06, letterSpacing: -1 }}>
+          <span>Your business has moving parts.</span>
+          <span style={{ display: "flex" }}>
+            <span style={{ color: "rgba(245,239,228,0.6)" }}>We make them&nbsp;</span>
+            <span style={{ fontStyle: "italic", color: "#B9A0EE" }}>work together.</span>
+          </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 22, letterSpacing: 4, color: "#A7A19A" }}>
-          <span style={{ width: 14, height: 14, borderRadius: 7, background: "#6F3FC5" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 22, letterSpacing: 5, color: "#B6A79D" }}>
+          <div style={{ width: 56, height: 2, background: "linear-gradient(90deg,#ffffff,#8f8a85,#e6e2dd)" }} />
           TECHNOLOGY × STRATEGY × CREATIVE
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      fonts: [
+        { name: "Playfair", data: serif, style: "normal", weight: 500 },
+        { name: "Playfair", data: serifItalic, style: "italic", weight: 500 },
+      ],
+    },
   );
 }

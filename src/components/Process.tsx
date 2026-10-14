@@ -45,14 +45,14 @@ export function Process() {
               >
                 <span className={`h-1.5 w-1.5 rounded-full ${i === 3 ? "bg-cream" : "bg-ink"}`} />
               </span>
-              <span className="eyebrow text-stone">Stage {String(i + 1).padStart(2, "0")}</span>
+              <span className="eyebrow text-graphite">Stage {String(i + 1).padStart(2, "0")}</span>
               <h3 className="display mt-3 text-3xl sm:text-4xl">{stage.name}</h3>
-              <p className="mt-3 max-w-xs text-[1.0625rem] leading-relaxed text-stone">{stage.body}</p>
+              <p className="mt-3 max-w-xs text-[1.0625rem] leading-relaxed text-graphite">{stage.body}</p>
             </li>
           ))}
         </ol>
 
-        <p className="mt-12 max-w-xl border-t border-ink/15 pt-6 text-[0.95rem] leading-relaxed text-stone" data-reveal>
+        <p className="mt-12 max-w-xl border-t border-ink/15 pt-6 text-[0.95rem] leading-relaxed text-graphite" data-reveal>
           These are delivery stages, not packages. An engagement might start with an audit, go straight to
           implementation, or settle into ongoing optimization — scoped to what your business actually needs.
         </p>

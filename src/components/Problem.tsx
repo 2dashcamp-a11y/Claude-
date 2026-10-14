@@ -42,7 +42,7 @@ export function Problem() {
               Your business shouldn’t have to work <em className="font-serif font-normal italic">around</em> its
               technology.
             </h2>
-            <blockquote className="mt-10 border-l-2 border-red pl-6" data-reveal>
+            <blockquote className="mt-10 border-l-2 border-oxblood pl-6" data-reveal>
               <p className="font-serif text-2xl leading-snug sm:text-[1.75rem]">
                 Better technology isn’t always about adding another platform. Sometimes it’s about making what you
                 already have work.
@@ -61,7 +61,7 @@ export function Problem() {
               <span className="eyebrow pt-1.5 text-purple">{String(i + 1).padStart(2, "0")}</span>
               <div>
                 <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl">{f.title}</h3>
-                <p className="mt-2 max-w-md text-[1.0625rem] leading-relaxed text-stone">{f.body}</p>
+                <p className="mt-2 max-w-md text-[1.0625rem] leading-relaxed text-graphite">{f.body}</p>
               </div>
             </li>
           ))}

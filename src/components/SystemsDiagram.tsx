@@ -12,8 +12,8 @@ export type Discipline = "systems" | "experience" | "creative";
 
 export const disciplineColor: Record<Discipline, string> = {
   systems: "var(--color-lilac)",
-  experience: "var(--color-magenta)",
-  creative: "var(--color-red)",
+  experience: "var(--color-stone)",
+  creative: "var(--color-rosewood)",
 };
 
 type NodeSpec = { label: string; angle: number; discipline: Discipline };
@@ -86,7 +86,7 @@ function place(layout: Layout) {
   });
 }
 
-function Map({ layout, className }: { layout: Layout; className: string }) {
+function Map({ layout, className, id }: { layout: Layout; className: string; id: string }) {
   const hub = { x: layout.width / 2, y: layout.height / 2 };
   const nodes = place(layout);
   const r = layout.chipH / 2;
@@ -99,6 +99,20 @@ function Map({ layout, className }: { layout: Layout; className: string }) {
       focusable="false"
       fill="none"
     >
+      <defs>
+        <linearGradient id={`chrome-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.3" stopColor="#d8d4cf" />
+          <stop offset="0.52" stopColor="#8f8a85" />
+          <stop offset="0.7" stopColor="#e6e2dd" />
+          <stop offset="1" stopColor="#a39d97" />
+        </linearGradient>
+        <radialGradient id={`core-${id}`} cx="0.38" cy="0.32" r="0.8">
+          <stop offset="0" stopColor="#8a5ad8" />
+          <stop offset="0.55" stopColor="#6f3fc5" />
+          <stop offset="1" stopColor="#3e1f78" />
+        </radialGradient>
+      </defs>
       <ellipse cx={hub.x} cy={hub.y} rx={layout.rx * 0.68} ry={layout.ry * 0.68} stroke="var(--color-cream)" strokeOpacity="0.09" />
       <ellipse
         cx={hub.x}
@@ -135,9 +149,9 @@ function Map({ layout, className }: { layout: Layout; className: string }) {
             width={n.w}
             height={layout.chipH}
             rx={r}
-            fill="var(--color-ink-2)"
+            fill="rgb(28 26 32 / 0.85)"
             stroke={disciplineColor[n.discipline]}
-            strokeOpacity="0.55"
+            strokeOpacity="0.6"
           />
           <circle
             cx={n.x + r}
@@ -161,33 +175,32 @@ function Map({ layout, className }: { layout: Layout; className: string }) {
         </g>
       ))}
 
-      {/* Connected core: echoes the wordmark */}
-      <circle cx={hub.x} cy={hub.y} r={layout.hubR + 16} stroke="var(--color-purple)" strokeOpacity="0.5" />
-      <circle cx={hub.x} cy={hub.y} r={layout.hubR} fill="var(--color-purple)" />
-      <text
-        x={hub.x}
-        y={hub.y - 8}
-        textAnchor="middle"
-        fill="var(--color-cream)"
-        fontSize={layout.hubR * 0.3}
-        fontWeight="700"
-        letterSpacing="1.5"
-        className="font-display"
-      >
-        DASH
-      </text>
-      <rect x={hub.x - layout.hubR * 0.28} y={hub.y + 1} width={layout.hubR * 0.56} height="5" rx="1" fill="var(--color-red)" />
-      <text
-        x={hub.x}
-        y={hub.y + layout.hubR * 0.46}
-        textAnchor="middle"
-        fill="var(--color-cream)"
-        fontSize={layout.hubR * 0.27}
-        className="font-serif"
-        fontStyle="italic"
-      >
-        connected
-      </text>
+      {/* Connected core: the (D) monogram, framed by chrome parentheses */}
+      {(() => {
+        const R = layout.hubR + 30;
+        const arc = (a0: number, a1: number) => {
+          const p = (a: number) => `${(hub.x + R * Math.cos((a * Math.PI) / 180)).toFixed(1)} ${(hub.y + R * Math.sin((a * Math.PI) / 180)).toFixed(1)}`;
+          return `M ${p(a0)} A ${R} ${R} 0 0 ${a1 > a0 ? 1 : 0} ${p(a1)}`;
+        };
+        const logoW = layout.hubR * 1.25;
+        const logoH = (logoW * 1182) / 1680;
+        return (
+          <>
+            <path d={arc(122, 238)} stroke={`url(#chrome-${id})`} strokeWidth="2.5" strokeLinecap="round" />
+            <path d={arc(-58, 58)} stroke={`url(#chrome-${id})`} strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx={hub.x} cy={hub.y} r={layout.hubR + 10} stroke={`url(#chrome-${id})`} strokeOpacity="0.55" />
+            <circle cx={hub.x} cy={hub.y} r={layout.hubR} fill={`url(#core-${id})`} />
+            <circle cx={hub.x} cy={hub.y} r={layout.hubR - 0.5} stroke="rgb(255 255 255 / 0.25)" />
+            <image
+              href="/brand/dod-monogram-cream.svg"
+              x={hub.x - logoW / 2}
+              y={hub.y - logoH / 2}
+              width={logoW}
+              height={logoH}
+            />
+          </>
+        );
+      })()}
     </svg>
   );
 }
@@ -195,8 +208,8 @@ function Map({ layout, className }: { layout: Layout; className: string }) {
 export function SystemsDiagram({ className = "" }: { className?: string }) {
   return (
     <div className={className}>
-      <Map layout={desktop} className="hidden w-full sm:block" />
-      <Map layout={mobile} className="mx-auto block w-full max-w-[420px] sm:hidden" />
+      <Map layout={desktop} id="lg" className="hidden w-full sm:block" />
+      <Map layout={mobile} id="sm" className="mx-auto block w-full max-w-[420px] sm:hidden" />
     </div>
   );
 }

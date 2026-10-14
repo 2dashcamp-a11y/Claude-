@@ -39,7 +39,7 @@ const OPTIONAL_FIELDS: (keyof FieldErrors)[] = [
 ];
 
 const inputClass =
-  "block w-full rounded-xl border bg-white px-4 py-3.5 text-base text-ink placeholder:text-stone/60 transition-colors focus:border-purple focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple/25 aria-[invalid=true]:border-red aria-[invalid=true]:ring-red/20";
+  "block w-full rounded-xl border bg-white px-4 py-3.5 text-base text-ink placeholder:text-graphite/60 transition-colors focus:border-purple focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple/25 aria-[invalid=true]:border-[#b42318] aria-[invalid=true]:ring-[#b42318]/20";
 
 function Field({
   id,
@@ -64,14 +64,14 @@ function Field({
         <span>
           {label}
           {required && (
-            <span aria-hidden="true" className="ml-0.5 text-red">
+            <span aria-hidden="true" className="ml-0.5 text-oxblood">
               *
             </span>
           )}
         </span>
       </label>
       {hint && (
-        <p id={`${id}-hint`} className="mt-1 text-sm text-stone">
+        <p id={`${id}-hint`} className="mt-1 text-sm text-graphite">
           {hint}
         </p>
       )}
@@ -91,7 +91,7 @@ function SelectArrow() {
     <svg
       aria-hidden="true"
       viewBox="0 0 12 8"
-      className="pointer-events-none absolute right-4 top-1/2 h-2 w-3 -translate-y-1/2 text-stone"
+      className="pointer-events-none absolute right-4 top-1/2 h-2 w-3 -translate-y-1/2 text-graphite"
     >
       <path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.5" />
     </svg>
@@ -235,7 +235,7 @@ export function WaitlistForm() {
   }
 
   const submitting = status === "submitting";
-  const fieldClass = (name: keyof FieldErrors) => `${inputClass} ${errors[name] ? "border-red" : "border-ink/15"}`;
+  const fieldClass = (name: keyof FieldErrors) => `${inputClass} ${errors[name] ? "border-[#b42318]" : "border-ink/15"}`;
   const optionalErrorCount = OPTIONAL_FIELDS.filter((f) => errors[f]).length;
 
   return (
@@ -244,7 +244,7 @@ export function WaitlistForm() {
       onSubmit={onSubmit}
       noValidate
       aria-describedby={id("required-note")}
-      className="relative rounded-3xl border border-ink/10 bg-white/55 p-6 sm:p-9"
+      className="glass-light relative rounded-3xl p-6 sm:p-9"
     >
       {TURNSTILE_SITE_KEY && (
         <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
@@ -252,7 +252,7 @@ export function WaitlistForm() {
 
       <div ref={summaryRef} tabIndex={-1} aria-live="assertive" className="outline-none">
         {status === "error" && message && (
-          <div role="alert" className="mb-7 rounded-xl border border-red/40 bg-red/[0.06] px-4 py-3 text-[0.95rem] text-[#8f1c13]">
+          <div role="alert" className="mb-7 rounded-xl border border-[#b42318]/40 bg-[#b42318]/[0.06] px-4 py-3 text-[0.95rem] text-[#8f1c13]">
             {message}
           </div>
         )}
@@ -260,8 +260,8 @@ export function WaitlistForm() {
 
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="eyebrow text-purple">Step 1 — The essentials</p>
-        <p id={id("required-note")} className="whitespace-nowrap text-sm text-stone">
-          <span className="text-red">*</span> Required
+        <p id={id("required-note")} className="whitespace-nowrap text-sm text-graphite">
+          <span className="text-oxblood">*</span> Required
         </p>
       </div>
 
@@ -348,9 +348,9 @@ export function WaitlistForm() {
           <span>
             <span className="block font-display text-base font-semibold text-ink">
               Step 2 — Add project details{" "}
-              <span className="font-sans text-sm font-normal text-stone">(optional)</span>
+              <span className="font-sans text-sm font-normal text-graphite">(optional)</span>
             </span>
-            <span className="mt-0.5 block text-sm text-stone">
+            <span className="mt-0.5 block text-sm text-graphite">
               Website, stage, budget, timing and your biggest challenge. Helps us prepare.
             </span>
             {optionalErrorCount > 0 && (
@@ -472,7 +472,7 @@ export function WaitlistForm() {
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>{" "}
               and agree to Dash of Digital storing my details to respond to this request.
-              <span aria-hidden="true" className="text-red">
+              <span aria-hidden="true" className="text-oxblood">
                 {" "}
                 *
               </span>
@@ -484,7 +484,7 @@ export function WaitlistForm() {
             </p>
           )}
         </div>
-        <label className="flex cursor-pointer items-start gap-3 py-1 text-[0.95rem] leading-relaxed text-stone">
+        <label className="flex cursor-pointer items-start gap-3 py-1 text-[0.95rem] leading-relaxed text-graphite">
           <input type="checkbox" name="marketingConsent" className="mt-0.5 h-5 w-5 shrink-0 accent-purple" />
           <span>Also send me occasional Dash of Digital news and insights. Optional, unsubscribe anytime.</span>
         </label>
@@ -497,7 +497,7 @@ export function WaitlistForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="group mt-7 inline-flex h-14 w-full items-center justify-center gap-3 rounded-full bg-ink px-8 text-base font-semibold text-cream transition-colors hover:bg-purple disabled:cursor-wait disabled:opacity-80"
+        className="sheen group mt-7 inline-flex h-14 w-full items-center justify-center gap-3 rounded-full bg-ink px-8 text-base font-semibold text-cream transition-colors hover:bg-oxblood disabled:cursor-wait disabled:opacity-80"
       >
         {submitting ? (
           <>

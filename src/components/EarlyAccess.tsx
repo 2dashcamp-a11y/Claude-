@@ -17,17 +17,17 @@ export function EarlyAccess() {
             <h2 id="early-access-heading" className="display mt-6 text-[clamp(2.5rem,5.4vw,4.5rem)]" data-reveal>
               Let’s make your next move <em className="font-serif font-normal italic text-purple">work.</em>
             </h2>
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-stone" data-reveal>
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-graphite" data-reveal>
               We’re opening a limited number of early client opportunities. Tell us what you’re building, what’s
               getting in the way, and where you need support.
             </p>
             <p className="mt-4 flex items-start gap-2.5 text-[0.95rem] font-medium text-ink" data-reveal>
-              <span aria-hidden="true" className="mt-[0.45em] h-2 w-2 shrink-0 rounded-full bg-red" />
+              <span aria-hidden="true" className="mt-[0.45em] h-2 w-2 shrink-0 rounded-full bg-oxblood" />
               Takes about a minute: four quick fields and a privacy confirmation. Everything else is optional.
             </p>
 
             <div className="mt-10 hidden border-t border-ink/15 pt-7 lg:block" data-reveal>
-              <p className="eyebrow text-stone">What happens next</p>
+              <p className="eyebrow text-graphite">What happens next</p>
               <ol className="mt-5 space-y-3.5">
                 {nextSteps.map((step, i) => (
                   <li key={step} className="flex gap-4 text-base leading-relaxed">
@@ -43,7 +43,7 @@ export function EarlyAccess() {
           <WaitlistForm />
           {/* On small screens the next steps follow the form instead of preceding it. */}
           <div className="mt-8 border-t border-ink/15 pt-6 lg:hidden">
-            <p className="eyebrow text-stone">What happens next</p>
+            <p className="eyebrow text-graphite">What happens next</p>
             <ol className="mt-4 space-y-3">
               {nextSteps.map((step, i) => (
                 <li key={step} className="flex gap-4 text-base leading-relaxed">

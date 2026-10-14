@@ -53,9 +53,9 @@ function Glyph({ slug, color }: { slug: Service["slug"]; color: string }) {
           <text x="5" y="34" fontSize="27" fill={color} className="font-serif" fontStyle="italic">
             Aa
           </text>
-          <rect x="34" y="10" width="8" height="8" rx="1" fill="var(--color-red)" />
-          <rect x="34" y="20" width="8" height="8" rx="1" fill="var(--color-magenta)" />
-          <rect x="34" y="30" width="8" height="8" rx="1" fill="var(--color-purple)" />
+          <rect x="34" y="10" width="8" height="8" rx="1" fill="var(--color-oxblood)" stroke="var(--color-rosewood)" strokeWidth="0.75" />
+          <rect x="34" y="20" width="8" height="8" rx="1" fill="var(--color-purple)" />
+          <rect x="34" y="30" width="8" height="8" rx="1" fill="var(--color-stone)" />
         </>
       )}
     </svg>
@@ -63,38 +63,42 @@ function Glyph({ slug, color }: { slug: Service["slug"]; color: string }) {
 }
 
 const accent: Record<string, { bar: string; text: string; color: string }> = {
-  digital_infrastructure_audit: { bar: "bg-cream", text: "text-cream", color: "var(--color-cream)" },
-  digital_experience_modernization: { bar: "bg-magenta", text: "text-rose", color: "var(--color-magenta)" },
-  brand_creative_direction: { bar: "bg-red", text: "text-coral", color: "var(--color-red)" },
+  digital_infrastructure_audit: { bar: "var(--chrome)", text: "text-cream", color: "var(--color-cream)" },
+  digital_experience_modernization: { bar: "var(--color-stone)", text: "text-stone", color: "var(--color-stone)" },
+  brand_creative_direction: {
+    bar: "linear-gradient(90deg, var(--color-oxblood), var(--color-rosewood))",
+    text: "text-rosewood",
+    color: "var(--color-rosewood)",
+  },
 };
 
 function ServiceCard({ service }: { service: Service }) {
   const a = accent[service.slug];
   return (
     <article
-      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-cream/15 bg-ink-2 p-7 transition-colors hover:border-cream/35 sm:p-8"
+      className="chrome-border lift relative flex h-full flex-col overflow-hidden rounded-2xl p-7 sm:p-8"
       aria-labelledby={`svc-${service.slug}`}
     >
-      <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 ${a.bar}`} />
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1" style={{ background: a.bar }} />
       <div className="flex items-start justify-between">
         <Glyph slug={service.slug} color={a.color} />
-        <span aria-hidden="true" className="font-display text-5xl font-medium leading-none tracking-tight text-cream/40">
+        <span aria-hidden="true" className="chrome-text inline-block pr-1 font-display text-6xl font-medium italic leading-none">
           {service.number}
         </span>
       </div>
       <p className={`eyebrow mt-8 ${a.text}`}>{service.discipline}</p>
-      <h3 id={`svc-${service.slug}`} className="display mt-3 text-[1.85rem] leading-[1.05]">
+      <h3 id={`svc-${service.slug}`} className="display mt-3 text-[2rem] leading-[1.08]">
         {service.title}
       </h3>
       <p className="mt-4 text-[1.0625rem] leading-relaxed text-cream/80">{service.summary}</p>
       <div className="mt-7 border-t border-cream/12 pt-6">
-        <p className="eyebrow text-mist">What’s included</p>
+        <p className="eyebrow text-stone">What’s included</p>
         <ScopeList items={service.scope} className="mt-4 text-cream/80" />
       </div>
       <div className="mt-auto pt-8">
         <ServiceCta
           service={service.slug}
-          className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-cream/30 px-6 text-[0.95rem] font-medium text-cream transition-colors hover:border-cream hover:bg-cream hover:text-ink"
+          className="sheen group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-cream/30 px-6 text-[0.95rem] font-medium text-cream transition-colors hover:border-cream hover:bg-cream hover:text-ink"
         >
           Request early access <span className="sr-only">for {service.title}</span>
           <Arrow />
@@ -125,12 +129,26 @@ export function Services() {
 
         {/* Flagship: Technical Infrastructure Management */}
         <article
-          className="relative mt-14 grid gap-10 overflow-hidden rounded-2xl bg-purple p-7 text-cream sm:p-10 lg:grid-cols-12 lg:gap-8 lg:p-12"
+          className="relative mt-14 grid gap-10 overflow-hidden rounded-2xl p-7 text-cream shadow-[inset_0_1px_0_rgb(255_255_255/0.22)] sm:p-10 lg:grid-cols-12 lg:gap-8 lg:p-12"
+          style={{
+            background:
+              "radial-gradient(70% 90% at 100% 0%, rgb(118 38 60 / 0.55), transparent 60%), linear-gradient(135deg, #7c4ad4 0%, #6f3fc5 45%, #5a2fa8 100%)",
+          }}
           aria-labelledby={`svc-${technical.slug}`}
           data-reveal
         >
-          <div aria-hidden="true" className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full border border-cream/20" />
-          <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full border border-cream/15" />
+          {/* Sculptural parenthesis curve */}
+          <svg aria-hidden="true" viewBox="0 0 200 600" className="pointer-events-none absolute -right-6 top-1/2 hidden h-[130%] -translate-y-1/2 opacity-60 lg:block" fill="none">
+            <path d="M40 10 C 190 160, 190 440, 40 590" stroke="url(#flag-chrome)" strokeWidth="2" strokeLinecap="round" />
+            <defs>
+              <linearGradient id="flag-chrome" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#fff" stopOpacity="0" />
+                <stop offset="0.35" stopColor="#fff" stopOpacity="0.8" />
+                <stop offset="0.6" stopColor="#b6a79d" stopOpacity="0.6" />
+                <stop offset="1" stopColor="#fff" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
 
           <div className="relative lg:col-span-6">
             <div className="flex flex-wrap items-center gap-3">
@@ -142,7 +160,7 @@ export function Services() {
             </h3>
             <p className="mt-5 max-w-lg text-lg leading-relaxed text-cream/90">{technical.summary}</p>
 
-            <div className="mt-10 rounded-xl bg-ink/25 p-6 ring-1 ring-cream/15">
+            <div className="glass mt-10 rounded-xl p-6">
               <p className="font-display text-2xl font-medium tracking-tight sm:text-[1.75rem]">
                 Technical partnerships starting at <span className="whitespace-nowrap">$2,500/month.</span>
               </p>
@@ -151,7 +169,7 @@ export function Services() {
               </p>
               <ServiceCta
                 service={technical.slug}
-                className="group mt-6 inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-cream px-8 text-base font-semibold text-ink transition-colors hover:bg-ink hover:text-cream sm:w-auto"
+                className="sheen group mt-6 inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-cream px-8 text-base font-semibold text-ink transition-colors hover:bg-ink hover:text-cream sm:w-auto"
               >
                 Request early access <span className="sr-only">for {technical.title}</span>
                 <Arrow />
