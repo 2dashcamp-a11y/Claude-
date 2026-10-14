@@ -6,8 +6,9 @@
  * same validation rules and messages, honeypot, fill-time check, per-IP
  * rate limit, privacy-preserving duplicate handling, and email behavior.
  *
- * Configuration lives OUTSIDE public_html in dod-config.php
- * (see hostinger/dod-config.sample.php). Nothing secret is in this file.
+ * Works with zero setup (SQLite + PHP mail(), settings baked into api/_config.php
+ * by the build). Optional overrides (MySQL, SMTP) go in dod-config.php OUTSIDE
+ * public_html (see hostinger/dod-config.sample.php). Nothing secret is in this file.
  */
 
 declare(strict_types=1);
@@ -66,22 +67,19 @@ function fail(int $status, string $error, array $fieldErrors = []): never
     respond($status, $body);
 }
 
+/** Settings baked in by the build (api/_config.php), overridden by dod-config.php above public_html. */
 function load_config(): array
 {
-    $candidates = [
-        getenv('DOD_CONFIG') ?: null,
-        dirname(__DIR__, 2) . '/dod-config.php', // one level above public_html (recommended)
-        __DIR__ . '/_config.php',                // fallback inside api/ (protected by .htaccess)
-    ];
-    foreach ($candidates as $path) {
+    $config = [];
+    foreach ([__DIR__ . '/_config.php', dirname(__DIR__, 2) . '/dod-config.php', getenv('DOD_CONFIG') ?: null] as $path) {
         if ($path && is_file($path)) {
-            $config = require $path;
-            if (is_array($config)) {
-                return $config;
+            $values = require $path;
+            if (is_array($values)) {
+                $config = array_merge($config, array_filter($values, fn ($v) => $v !== '' && $v !== null));
             }
         }
     }
-    return [];
+    return $config;
 }
 
 function cfg(array $config, string $key, $default = null)
@@ -215,22 +213,98 @@ function validate(array $data): array
 }
 
 // ---------------------------------------------------------------- database
+//
+// Zero-setup by default: leads go to a SQLite file stored OUTSIDE public_html
+// (domains/<site>/dod-data/waitlist.sqlite). If DB_NAME/DB_USER are configured,
+// MySQL is used instead. All SQL below is portable between the two.
+
+const SQLITE_SCHEMA = [
+    "CREATE TABLE IF NOT EXISTS dod_waitlist_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      email_normalized TEXT NOT NULL UNIQUE,
+      company_name TEXT NOT NULL,
+      website_url TEXT,
+      service_interest TEXT NOT NULL CHECK (service_interest IN ('digital_infrastructure_audit','technical_infrastructure_management','digital_experience_modernization','brand_creative_direction','not_sure')),
+      business_stage TEXT CHECK (business_stage IS NULL OR business_stage IN ('pre_launch','early','established','scaling')),
+      biggest_challenge TEXT,
+      budget_range TEXT CHECK (budget_range IS NULL OR budget_range IN ('under_2500','2500_4999','5000_9999','10000_plus','not_sure')),
+      timeline TEXT CHECK (timeline IS NULL OR timeline IN ('immediately','within_30_days','1_3_months','exploring')),
+      privacy_acknowledged_at TEXT NOT NULL,
+      privacy_policy_version TEXT NOT NULL,
+      marketing_consent INTEGER NOT NULL DEFAULT 0,
+      marketing_consent_at TEXT,
+      status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new','qualified','contacted','discovery','proposal','client','not_a_fit')),
+      internal_notes TEXT,
+      source TEXT NOT NULL DEFAULT 'landing_page',
+      submission_count INTEGER NOT NULL DEFAULT 1,
+      last_submitted_at TEXT NOT NULL,
+      founder_notified_at TEXT,
+      confirmation_sent_at TEXT,
+      email_delivery_error TEXT,
+      external_crm_id TEXT,
+      synced_at TEXT
+    )",
+    "CREATE INDEX IF NOT EXISTS idx_entries_created ON dod_waitlist_entries (created_at)",
+    "CREATE TABLE IF NOT EXISTS dod_waitlist_rate (id INTEGER PRIMARY KEY AUTOINCREMENT, ip_hash TEXT NOT NULL, created_at TEXT NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS idx_rate ON dod_waitlist_rate (ip_hash, created_at)",
+];
+
+function now_utc(int $offsetSeconds = 0): string
+{
+    return gmdate('Y-m-d H:i:s', time() + $offsetSeconds);
+}
+
+/** Folder for the SQLite file: above public_html when possible, never web-served. */
+function data_dir(array $config): string
+{
+    $configured = cfg($config, 'DATA_DIR');
+    if ($configured) {
+        return $configured;
+    }
+    $outside = dirname(__DIR__, 2) . '/dod-data';
+    if (is_dir($outside) || @mkdir($outside, 0700, true)) {
+        return $outside;
+    }
+    return __DIR__ . '/data'; // fallback, blocked by api/data/.htaccess
+}
 
 function db(array $config): PDO
 {
-    $dsn = sprintf(
-        'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
-        cfg($config, 'DB_HOST', 'localhost'),
-        (int) cfg($config, 'DB_PORT', 3306),
-        cfg($config, 'DB_NAME', ''),
-    );
-    $pdo = new PDO($dsn, cfg($config, 'DB_USER', ''), (string) ($config['DB_PASS'] ?? ''), [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_EMULATE_PREPARES => false,
-        PDO::ATTR_TIMEOUT => 5,
-    ]);
-    $pdo->exec("SET time_zone = '+00:00'");
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5];
+    if (cfg($config, 'DB_NAME') && cfg($config, 'DB_USER')) {
+        $dsn = sprintf(
+            'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+            cfg($config, 'DB_HOST', 'localhost'),
+            (int) cfg($config, 'DB_PORT', 3306),
+            cfg($config, 'DB_NAME'),
+        );
+        $pdo = new PDO($dsn, cfg($config, 'DB_USER'), (string) ($config['DB_PASS'] ?? ''), $options + [PDO::ATTR_EMULATE_PREPARES => false]);
+        $pdo->exec("SET time_zone = '+00:00'");
+        return $pdo;
+    }
+
+    $dir = data_dir($config);
+    if (!is_dir($dir) && !@mkdir($dir, 0700, true)) {
+        throw new PDOException('Cannot create data folder');
+    }
+    if (str_starts_with($dir, __DIR__) && !is_file($dir . '/.htaccess')) {
+        @file_put_contents($dir . '/.htaccess', "Require all denied\n");
+    }
+    $pdo = new PDO('sqlite:' . $dir . '/waitlist.sqlite', null, null, $options);
+    $pdo->exec('PRAGMA busy_timeout = 5000');
+    foreach (SQLITE_SCHEMA as $statement) {
+        $pdo->exec($statement);
+    }
     return $pdo;
+}
+
+function is_sqlite(PDO $pdo): bool
+{
+    return $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
 }
 
 function ensure_schema(PDO $pdo): void
@@ -241,12 +315,13 @@ function ensure_schema(PDO $pdo): void
     }
 }
 
+/** MySQL tables are created on first use; SQLite tables are created on connect. */
 function with_schema(PDO $pdo, callable $fn)
 {
     try {
         return $fn();
     } catch (PDOException $e) {
-        if ($e->getCode() !== '42S02') { // table not found
+        if (is_sqlite($pdo) || $e->getCode() !== '42S02') {
             throw $e;
         }
         ensure_schema($pdo);
@@ -258,16 +333,14 @@ function rate_limited(PDO $pdo, string $ipHash): bool
 {
     return with_schema($pdo, function () use ($pdo, $ipHash) {
         if (random_int(1, 50) === 1) {
-            $pdo->exec('DELETE FROM dod_waitlist_rate WHERE created_at < (UTC_TIMESTAMP() - INTERVAL 1 DAY)');
+            $pdo->prepare('DELETE FROM dod_waitlist_rate WHERE created_at < ?')->execute([now_utc(-86400)]);
         }
-        $stmt = $pdo->prepare(
-            'SELECT COUNT(*) FROM dod_waitlist_rate WHERE ip_hash = ? AND created_at > (UTC_TIMESTAMP() - INTERVAL ' . RATE_WINDOW_MINUTES . ' MINUTE)'
-        );
-        $stmt->execute([$ipHash]);
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM dod_waitlist_rate WHERE ip_hash = ? AND created_at > ?');
+        $stmt->execute([$ipHash, now_utc(-RATE_WINDOW_MINUTES * 60)]);
         if ((int) $stmt->fetchColumn() >= RATE_LIMIT) {
             return true;
         }
-        $pdo->prepare('INSERT INTO dod_waitlist_rate (ip_hash, created_at) VALUES (?, UTC_TIMESTAMP())')->execute([$ipHash]);
+        $pdo->prepare('INSERT INTO dod_waitlist_rate (ip_hash, created_at) VALUES (?, ?)')->execute([$ipHash, now_utc()]);
         return false;
     });
 }
@@ -276,48 +349,57 @@ function rate_limited(PDO $pdo, string $ipHash): bool
 function store_entry(PDO $pdo, array $entry, string $policyVersion): array
 {
     return with_schema($pdo, function () use ($pdo, $entry, $policyVersion) {
-        $sql = 'INSERT INTO dod_waitlist_entries
-            (full_name, email, email_normalized, company_name, website_url, service_interest, business_stage,
-             biggest_challenge, budget_range, timeline, privacy_acknowledged_at, privacy_policy_version,
-             marketing_consent, marketing_consent_at, source, created_at, updated_at, last_submitted_at)
-            VALUES (:full_name, :email, :email_normalized, :company_name, :website_url, :service_interest, :business_stage,
-             :biggest_challenge, :budget_range, :timeline, UTC_TIMESTAMP(), :policy,
-             :marketing_consent, IF(:marketing_consent2 = 1, UTC_TIMESTAMP(), NULL), \'landing_page\',
-             UTC_TIMESTAMP(), UTC_TIMESTAMP(), UTC_TIMESTAMP())
-            ON DUPLICATE KEY UPDATE
-              submission_count = submission_count + 1,
-              last_submitted_at = UTC_TIMESTAMP(),
-              id = LAST_INSERT_ID(id)';
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':full_name' => $entry['full_name'],
-            ':email' => $entry['email'],
-            ':email_normalized' => mb_strtolower(trim($entry['email']), 'UTF-8'),
-            ':company_name' => $entry['company_name'],
-            ':website_url' => $entry['website_url'],
-            ':service_interest' => $entry['service_interest'],
-            ':business_stage' => $entry['business_stage'],
-            ':biggest_challenge' => $entry['biggest_challenge'],
-            ':budget_range' => $entry['budget_range'],
-            ':timeline' => $entry['timeline'],
-            ':policy' => $policyVersion,
-            ':marketing_consent' => $entry['marketing_consent'] ? 1 : 0,
-            ':marketing_consent2' => $entry['marketing_consent'] ? 1 : 0,
-        ]);
-        // MySQL reports 1 affected row for an insert, 2 for an update.
-        return [(int) $pdo->lastInsertId(), $stmt->rowCount() === 1];
+        $normalized = mb_strtolower(trim($entry['email']), 'UTF-8');
+        $now = now_utc();
+
+        $find = $pdo->prepare('SELECT id FROM dod_waitlist_entries WHERE email_normalized = ?');
+        $find->execute([$normalized]);
+        $existing = $find->fetchColumn();
+        if ($existing !== false) {
+            $pdo->prepare('UPDATE dod_waitlist_entries SET submission_count = submission_count + 1, last_submitted_at = ?, updated_at = ? WHERE id = ?')
+                ->execute([$now, $now, $existing]);
+            return [(int) $existing, false];
+        }
+
+        try {
+            $pdo->prepare(
+                'INSERT INTO dod_waitlist_entries
+                  (full_name, email, email_normalized, company_name, website_url, service_interest, business_stage,
+                   biggest_challenge, budget_range, timeline, privacy_acknowledged_at, privacy_policy_version,
+                   marketing_consent, marketing_consent_at, source, created_at, updated_at, last_submitted_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            )->execute([
+                $entry['full_name'], $entry['email'], $normalized, $entry['company_name'], $entry['website_url'],
+                $entry['service_interest'], $entry['business_stage'], $entry['biggest_challenge'], $entry['budget_range'],
+                $entry['timeline'], $now, $policyVersion, $entry['marketing_consent'] ? 1 : 0,
+                $entry['marketing_consent'] ? $now : null, 'landing_page', $now, $now, $now,
+            ]);
+            return [(int) $pdo->lastInsertId(), true];
+        } catch (PDOException $e) {
+            // Lost a race with a simultaneous submission for the same email: count it as a repeat.
+            $find->execute([$normalized]);
+            $id = $find->fetchColumn();
+            if ($id === false) {
+                throw $e;
+            }
+            $pdo->prepare('UPDATE dod_waitlist_entries SET submission_count = submission_count + 1, last_submitted_at = ? WHERE id = ?')
+                ->execute([$now, $id]);
+            return [(int) $id, false];
+        }
     });
 }
 
 function record_delivery(PDO $pdo, int $id, bool $founder, bool $confirmation, ?string $error): void
 {
+    $now = now_utc();
+    // COALESCE keeps an earlier timestamp when this attempt didn't send (portable across MySQL/SQLite).
     $pdo->prepare(
         'UPDATE dod_waitlist_entries SET
-           founder_notified_at = IF(?, UTC_TIMESTAMP(), founder_notified_at),
-           confirmation_sent_at = IF(?, UTC_TIMESTAMP(), confirmation_sent_at),
-           email_delivery_error = ?, updated_at = UTC_TIMESTAMP()
+           founder_notified_at = COALESCE(?, founder_notified_at),
+           confirmation_sent_at = COALESCE(?, confirmation_sent_at),
+           email_delivery_error = ?, updated_at = ?
          WHERE id = ?'
-    )->execute([$founder ? 1 : 0, $confirmation ? 1 : 0, $error, $id]);
+    )->execute([$founder ? $now : null, $confirmation ? $now : null, $error, $now, $id]);
 }
 
 // ---------------------------------------------------------------- email
@@ -588,6 +670,37 @@ function turnstile_ok(string $secret, ?string $token, string $ip): bool
     return is_array($data) && ($data['success'] ?? false) === true;
 }
 
+// ---------------------------------------------------------------- export
+
+if (defined('DOD_EXPORT')) {
+    $config = load_config();
+    $key = (string) cfg($config, 'EXPORT_KEY', '');
+    $given = is_string($_GET['key'] ?? null) ? $_GET['key'] : '';
+    header('X-Robots-Tag: noindex');
+    if (strlen($key) < 24 || !hash_equals($key, $given)) {
+        http_response_code(404);
+        exit;
+    }
+    $pdo = db($config);
+    $rows = with_schema($pdo, fn () => $pdo->query('SELECT * FROM dod_waitlist_entries ORDER BY created_at')->fetchAll(PDO::FETCH_ASSOC));
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Cache-Control: no-store');
+    header('Content-Disposition: attachment; filename="dod-waitlist-' . gmdate('Y-m-d') . '.csv"');
+    $out = fopen('php://output', 'w');
+    fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel shows characters correctly
+    $columns = ['created_at', 'status', 'full_name', 'email', 'company_name', 'website_url', 'service_interest',
+        'business_stage', 'budget_range', 'timeline', 'biggest_challenge', 'marketing_consent', 'submission_count',
+        'last_submitted_at', 'founder_notified_at', 'confirmation_sent_at', 'email_delivery_error', 'internal_notes', 'id'];
+    fputcsv($out, $columns);
+    foreach ($rows as $row) {
+        fputcsv($out, array_map(function ($c) use ($row) {
+            $v = (string) ($row[$c] ?? '');
+            return preg_match('/^[=+\-@\t\r]/', $v) ? "'" . $v : $v; // neutralize spreadsheet formulas
+        }, $columns));
+    }
+    exit;
+}
+
 // ---------------------------------------------------------------- request
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
@@ -599,22 +712,19 @@ if (!str_contains(strtolower($_SERVER['CONTENT_TYPE'] ?? ''), 'application/json'
 }
 
 $config = load_config();
-$configured = cfg($config, 'DB_NAME') && cfg($config, 'DB_USER');
 
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 $ipHash = hash('sha256', (string) cfg($config, 'IP_SALT', 'dod') . '|' . $ip);
 
 $pdo = null;
-if ($configured) {
-    try {
-        $pdo = db($config);
-        if (rate_limited($pdo, $ipHash)) {
-            fail(429, 'Too many submissions from this connection. Please wait a few minutes and try again.');
-        }
-    } catch (PDOException $e) {
-        error_log('[waitlist] Database unavailable: ' . $e->getMessage());
-        $pdo = null;
+try {
+    $pdo = db($config);
+    if (rate_limited($pdo, $ipHash)) {
+        fail(429, 'Too many submissions from this connection. Please wait a few minutes and try again.');
     }
+} catch (PDOException $e) {
+    error_log('[waitlist] Database unavailable: ' . $e->getMessage());
+    $pdo = null;
 }
 
 $raw = file_get_contents('php://input', false, null, 0, MAX_BODY_BYTES + 1);
@@ -651,10 +761,6 @@ if ($turnstileSecret && !turnstile_ok($turnstileSecret, is_string($data['turnsti
     fail(400, 'We couldn’t verify this browser. Please complete the verification and try again.');
 }
 
-if (!$configured) {
-    error_log('[waitlist] dod-config.php is missing or incomplete.');
-    fail(503, GENERIC_FAILURE);
-}
 if (!$pdo) {
     fail(500, GENERIC_FAILURE);
 }

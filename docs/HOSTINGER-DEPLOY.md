@@ -1,5 +1,20 @@
 # Deploying Dash of Digital to Hostinger
 
+## Quick launch: 3 steps, no database or settings file
+
+The ZIP works with zero setup. Leads are saved in a private file outside `public_html` (`dod-data/waitlist.sqlite`) and emailed to you with Hostinger's built-in mail.
+
+1. **hPanel → Websites → Add website** for the domain. Skip this if it's already listed.
+2. **Files → File Manager → `public_html`**: upload the ZIP, choose **Extract**, then delete the ZIP.
+3. **Domains → DNS records**: delete the old Base44 `www` CNAME, then add **CNAME `www` → `yourdomain.com`**. SSL is issued automatically.
+
+To download your leads, open the private export link printed by the build (saved in `dist/lead-export-link.txt`). It downloads a CSV.
+
+If you later want MySQL/phpMyAdmin or authenticated SMTP, add the optional `dod-config.php` described below. It overrides the built-in defaults.
+
+---
+
+
 **What runs where:** the site is built with Next.js and exported as static HTML, CSS and JS. The Early Access form posts to `/api/waitlist`, which is handled by a PHP script (`api/waitlist.php`). That script stores leads in Hostinger's MySQL and emails you through your Hostinger mailbox.
 
 **Plan requirements:** any Hostinger web hosting plan that includes PHP 8.1 or later, MySQL, and email. Node.js is not required, and no outside services or subscriptions are needed.
