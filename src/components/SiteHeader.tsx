@@ -35,8 +35,9 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-[1320px] items-center justify-between px-5 sm:px-8 lg:h-[72px]">
-        <a href="#top" className="text-cream" aria-label="Dash of Digital — back to top" onClick={() => setOpen(false)}>
+        <a href="#top" className="text-cream" onClick={() => setOpen(false)}>
           <Wordmark />
+          <span className="sr-only">, back to top</span>
         </a>
 
         <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">

@@ -10,13 +10,15 @@
  * at a local or staging database, not production).
  * Screenshots are written to SCREENSHOT_DIR (default ./qa-screenshots).
  */
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { chromium } from "playwright";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const SHOTS = process.env.SCREENSHOT_DIR ?? "qa-screenshots";
 const TEST_EMAIL = process.env.E2E_EMAIL ?? `qa+${Date.now()}@example.com`;
 mkdirSync(SHOTS, { recursive: true });
+const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
 
 const results = [];
 const check = (name, ok, detail = "") => {
@@ -53,6 +55,14 @@ for (const [label, viewport] of [
   );
   check(`${label}: no broken images`, broken.length === 0, broken.join(", "));
   await page.screenshot({ path: `${SHOTS}/${label}-full.png`, fullPage: true });
+  await page.addScriptTag({ content: AXE_SOURCE });
+  const violations = await page.evaluate(async () => {
+    const r = await window.axe.run(document, { resultTypes: ["violations"] });
+    return r.violations
+      .filter((v) => v.impact === "serious" || v.impact === "critical")
+      .map((v) => `${v.id} (${v.nodes.length}): ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(", ")}`);
+  });
+  check(`${label}: axe — no serious/critical accessibility violations`, violations.length === 0, violations.join(" | "));
   check(`${label}: no console errors`, errors.length === 0, errors.join(" | "));
   await context.close();
 }
@@ -105,6 +115,25 @@ for (const [label, viewport] of [
   await page.waitForTimeout(400);
   const selected = await page.locator('select[name="serviceInterest"]').inputValue();
   check("service CTA preselects interest", selected === "brand_creative_direction", selected);
+
+  // Optional details are collapsed by default and auto-open on an error inside them.
+  const details = page.locator("#early-access details");
+  check("optional details collapsed by default", (await details.getAttribute("open")) === null);
+  await page.locator('input[name="fullName"]').fill("QA Tester");
+  await page.locator('input[name="email"]').fill("qa-optional@example.com");
+  await page.locator('input[name="companyName"]').fill("QA Co");
+  await page.locator('select[name="serviceInterest"]').selectOption("not_sure");
+  await page.locator('input[name="privacyAcknowledged"]').check();
+  await page.evaluate(() => {
+    document.querySelector('input[name="websiteUrl"]').value = "not a url";
+  });
+  await page.locator('button[type="submit"]').click();
+  await page.waitForTimeout(300);
+  check("error in optional field opens details", (await details.getAttribute("open")) !== null);
+  const focusedOptional = await page.evaluate(() => document.activeElement?.getAttribute("name"));
+  check("focus moves into optional field with error", focusedOptional === "websiteUrl", String(focusedOptional));
+  await page.locator("#early-access").screenshot({ path: `${SHOTS}/form-optional-error.png` });
+  await page.locator('input[name="privacyAcknowledged"]').uncheck();
 
   // Real submission.
   await page.locator('input[name="fullName"]').fill("QA Tester");

@@ -10,12 +10,12 @@ export function SiteFooter({ onHome = true }: { onHome?: boolean }) {
 
   return (
     <footer className="border-t border-cream/10 bg-ink text-cream">
-      <div className="mx-auto max-w-[1320px] px-5 pb-10 pt-20 sm:px-8">
+      <div className="mx-auto max-w-[1320px] px-5 pb-10 pt-16 sm:pt-20 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <Wordmark className="text-lg" />
             <p className="mt-6 max-w-sm font-serif text-2xl leading-snug text-cream/85">{siteConfig.tagline}</p>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-cream/60">
+            <p className="mt-4 max-w-sm text-[0.95rem] leading-relaxed text-cream/65">
               A technology-led creative agency connecting the systems, experiences, and ideas that move businesses
               forward. U.S.-based, working remotely with clients everywhere.
             </p>
@@ -24,10 +24,10 @@ export function SiteFooter({ onHome = true }: { onHome?: boolean }) {
           <nav aria-label="Footer" className="grid grid-cols-2 gap-8 lg:col-span-6">
             <div>
               <p className="eyebrow text-mist">Explore</p>
-              <ul className="mt-5 space-y-3 text-sm">
+              <ul className="mt-4 space-y-1 text-[0.95rem]">
                 {navLinks.map((link) => (
                   <li key={link.href}>
-                    <a href={anchor(link.href)} className="text-cream/75 hover:text-cream">
+                    <a href={anchor(link.href)} className="inline-block py-1.5 text-cream/75 hover:text-cream">
                       {link.label}
                     </a>
                   </li>
@@ -36,25 +36,25 @@ export function SiteFooter({ onHome = true }: { onHome?: boolean }) {
             </div>
             <div>
               <p className="eyebrow text-mist">Contact & legal</p>
-              <ul className="mt-5 space-y-3 text-sm">
+              <ul className="mt-4 space-y-1 text-[0.95rem]">
                 <li>
                   {siteConfig.contactEmail ? (
-                    <a href={`mailto:${siteConfig.contactEmail}`} className="break-all text-cream/75 hover:text-cream">
+                    <a href={`mailto:${siteConfig.contactEmail}`} className="inline-block break-all py-1.5 text-cream/75 hover:text-cream">
                       {siteConfig.contactEmail}
                     </a>
                   ) : (
-                    <a href={anchor("#early-access")} className="text-cream/75 hover:text-cream">
+                    <a href={anchor("#early-access")} className="inline-block py-1.5 text-cream/75 hover:text-cream">
                       Get in touch
                     </a>
                   )}
                 </li>
                 <li>
-                  <Link href="/privacy" className="text-cream/75 hover:text-cream">
+                  <Link href="/privacy" className="inline-block py-1.5 text-cream/75 hover:text-cream">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="text-cream/75 hover:text-cream">
+                  <Link href="/terms" className="inline-block py-1.5 text-cream/75 hover:text-cream">
                     Terms of Use
                   </Link>
                 </li>
@@ -63,7 +63,7 @@ export function SiteFooter({ onHome = true }: { onHome?: boolean }) {
           </nav>
         </div>
 
-        <div className="mt-20 flex flex-col gap-3 border-t border-cream/10 pt-6 text-xs text-cream/50 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-3 border-t border-cream/10 pt-6 text-sm text-cream/55 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © <CopyrightYear buildYear={BUILD_YEAR} /> {siteConfig.legalName}. All rights reserved.
           </p>

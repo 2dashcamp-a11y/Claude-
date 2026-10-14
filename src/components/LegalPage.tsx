@@ -9,8 +9,9 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
     <>
       <header className="border-b border-cream/10 bg-ink">
         <div className="mx-auto flex h-16 max-w-[1320px] items-center justify-between px-5 sm:px-8 lg:h-[72px]">
-          <Link href="/" aria-label="Dash of Digital — home">
+          <Link href="/">
             <Wordmark />
+            <span className="sr-only">, home</span>
           </Link>
           <Link href="/#early-access" className="text-sm text-cream/75 hover:text-cream">
             Join Early Access

@@ -1,3 +1,5 @@
+import { Folio } from "./Folio";
+
 const frictions = [
   {
     title: "Disconnected software",
@@ -28,12 +30,10 @@ const frictions = [
 export function Problem() {
   return (
     <section id="about" aria-labelledby="problem-heading" className="on-cream bg-cream text-ink">
-      <div className="mx-auto grid max-w-[1320px] gap-14 px-5 py-24 sm:px-8 lg:grid-cols-12 lg:gap-8 lg:py-36">
+      <div className="mx-auto grid max-w-[1320px] gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-12 lg:gap-8 lg:py-32">
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-32">
-            <p className="eyebrow text-purple" data-reveal>
-              The insight
-            </p>
+            <Folio num="01" label="The insight" className="text-purple" />
             <h2
               id="problem-heading"
               className="display mt-6 text-[clamp(2.25rem,5vw,4.25rem)]"
@@ -55,13 +55,13 @@ export function Problem() {
           {frictions.map((f, i) => (
             <li
               key={f.title}
-              className="grid grid-cols-[3rem_1fr] gap-x-4 border-t border-ink/15 py-7 last:border-b sm:grid-cols-[4rem_1fr] sm:py-8"
+              className="grid grid-cols-[3rem_1fr] gap-x-4 border-t border-ink/15 py-6 last:border-b sm:grid-cols-[4rem_1fr] sm:py-7"
               data-reveal
             >
-              <span className="eyebrow pt-1.5 text-stone">{String(i + 1).padStart(2, "0")}</span>
+              <span className="eyebrow pt-1.5 text-purple">{String(i + 1).padStart(2, "0")}</span>
               <div>
                 <h3 className="font-display text-xl font-medium tracking-tight sm:text-2xl">{f.title}</h3>
-                <p className="mt-2 max-w-md leading-relaxed text-stone">{f.body}</p>
+                <p className="mt-2 max-w-md text-[1.0625rem] leading-relaxed text-stone">{f.body}</p>
               </div>
             </li>
           ))}

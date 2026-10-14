@@ -1,5 +1,21 @@
 # QA checklist
 
+## Design refinement pass — re-tested 2026-10-14
+
+These checks were all re-run on the refined design, against a production build connected to Postgres + PostgREST:
+
+- Lint, typecheck and build: clean.
+- Unit tests: **25/25** pass. The backend code is unchanged.
+- Browser QA (`scripts/e2e-check.mjs`): **44/44** checks pass. That's the original 38 plus these new ones:
+  - **axe-core accessibility audit** at 375px, 768px and 1440px, with no serious or critical violations. The home page passed only after the contrast fixes; `/privacy` and `/terms` also came back clean.
+  - The optional details step is collapsed by default.
+  - An error in an optional field opens the details step and moves focus to that field.
+- A real submission that included optional details was stored correctly. A duplicate submission kept the original entry and increased `submission_count`.
+- Before/after screenshots are in [`screenshots/before-after/`](screenshots/before-after/). What changed is listed in [DESIGN-REFINEMENT.md](DESIGN-REFINEMENT.md).
+
+---
+
+
 Tested on 2026-10-14 against a production build (`next build && next start`).
 
 **How it was tested:** the site was connected to a **real Postgres 16 database with PostgREST** (the same API layer Supabase uses), set up with Supabase's `anon` and `service_role` roles. A real Chromium browser drove the site with `scripts/e2e-check.mjs`. Screenshots are in [`docs/screenshots/`](screenshots/).

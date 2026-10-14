@@ -40,6 +40,8 @@ scripts/
 tests/                      Vitest unit tests (validation, handler, email, Supabase calls)
 docs/QA.md                  QA checklist: what's verified and what isn't
 docs/ROADMAP.md             DASH HQ / CRM integration roadmap
+docs/DESIGN-REFINEMENT.md   What the design refinement pass changed
+docs/WORDPRESS-CONVERSION-PLAN.md  Plan for the WordPress block theme + waitlist plugin
 .env.example                Every environment variable, documented
 ```
 

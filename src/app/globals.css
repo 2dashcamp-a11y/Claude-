@@ -12,6 +12,9 @@
   /* Lighter tint of Dash Purple for text on Ink (meets WCAG AA). */
   --color-lilac: #b9a0ee;
   --color-red: #e33b30;
+  /* Lighter tints of Hot Red and Magenta for small text on dark cards (WCAG AA). */
+  --color-coral: #ec6a60;
+  --color-rose: #e8689c;
   --color-magenta: #d83b7d;
   --color-stone: #5d574e;
   --color-mist: #a7a19a;
@@ -53,10 +56,29 @@
 @layer components {
   .eyebrow {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    line-height: 1rem;
-    letter-spacing: 0.14em;
+    font-size: 0.8125rem;
+    line-height: 1.1rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+  /* Section folio: "02 — Expertise". The recurring DOD editorial marker. */
+  .folio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .folio > .folio-num {
+    font-weight: 500;
+  }
+  .folio > .folio-dash {
+    display: inline-block;
+    width: 1.75rem;
+    height: 3px;
+    background: var(--color-red);
   }
   .display {
     font-family: var(--font-display);

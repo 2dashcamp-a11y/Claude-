@@ -29,8 +29,17 @@ const FIELD_ORDER: (keyof FieldErrors)[] = [
   "privacyAcknowledged",
 ];
 
+/** Fields inside the collapsible "project details" step. */
+const OPTIONAL_FIELDS: (keyof FieldErrors)[] = [
+  "websiteUrl",
+  "businessStage",
+  "budgetRange",
+  "timeline",
+  "biggestChallenge",
+];
+
 const inputClass =
-  "block w-full rounded-xl border bg-white/70 px-4 py-3.5 text-base text-ink placeholder:text-stone/60 transition-colors focus:border-purple focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple/25 aria-[invalid=true]:border-red aria-[invalid=true]:ring-red/20";
+  "block w-full rounded-xl border bg-white px-4 py-3.5 text-base text-ink placeholder:text-stone/60 transition-colors focus:border-purple focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple/25 aria-[invalid=true]:border-red aria-[invalid=true]:ring-red/20";
 
 function Field({
   id,
@@ -51,7 +60,7 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="flex items-baseline justify-between gap-3 text-sm font-medium text-ink">
+      <label htmlFor={id} className="flex items-baseline justify-between gap-3 text-[0.95rem] font-medium text-ink">
         <span>
           {label}
           {required && (
@@ -60,10 +69,9 @@ function Field({
             </span>
           )}
         </span>
-        {!required && <span className="text-xs font-normal text-stone">Optional</span>}
       </label>
       {hint && (
-        <p id={`${id}-hint`} className="mt-1 text-xs text-stone">
+        <p id={`${id}-hint`} className="mt-1 text-sm text-stone">
           {hint}
         </p>
       )}
@@ -96,6 +104,7 @@ export function WaitlistForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
   const startedAt = useRef<number | null>(null);
 
   const [service, setService] = useState<string>("");
@@ -132,6 +141,8 @@ export function WaitlistForm() {
     undefined;
 
   function focusFirstError(fieldErrors: FieldErrors) {
+    // Reveal the optional step if anything inside it needs fixing.
+    if (OPTIONAL_FIELDS.some((name) => fieldErrors[name]) && detailsRef.current) detailsRef.current.open = true;
     const first = FIELD_ORDER.find((name) => fieldErrors[name]);
     if (first) formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
   }
@@ -224,6 +235,8 @@ export function WaitlistForm() {
   }
 
   const submitting = status === "submitting";
+  const fieldClass = (name: keyof FieldErrors) => `${inputClass} ${errors[name] ? "border-red" : "border-ink/15"}`;
+  const optionalErrorCount = OPTIONAL_FIELDS.filter((f) => errors[f]).length;
 
   return (
     <form
@@ -231,7 +244,7 @@ export function WaitlistForm() {
       onSubmit={onSubmit}
       noValidate
       aria-describedby={id("required-note")}
-      className="relative rounded-3xl border border-ink/10 bg-cream p-6 shadow-[0_30px_80px_-40px_rgba(11,11,13,0.35)] sm:p-10"
+      className="relative rounded-3xl border border-ink/10 bg-white/55 p-6 sm:p-9"
     >
       {TURNSTILE_SITE_KEY && (
         <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
@@ -239,17 +252,20 @@ export function WaitlistForm() {
 
       <div ref={summaryRef} tabIndex={-1} aria-live="assertive" className="outline-none">
         {status === "error" && message && (
-          <div role="alert" className="mb-8 rounded-xl border border-red/40 bg-red/[0.06] px-4 py-3 text-sm text-[#8f1c13]">
+          <div role="alert" className="mb-7 rounded-xl border border-red/40 bg-red/[0.06] px-4 py-3 text-[0.95rem] text-[#8f1c13]">
             {message}
           </div>
         )}
       </div>
 
-      <p id={id("required-note")} className="mb-6 text-xs text-stone">
-        Fields marked <span className="text-red">*</span> are required.
-      </p>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <p className="eyebrow text-purple">Step 1 — The essentials</p>
+        <p id={id("required-note")} className="whitespace-nowrap text-sm text-stone">
+          <span className="text-red">*</span> Required
+        </p>
+      </div>
 
-      <fieldset className="grid gap-6 sm:grid-cols-2">
+      <fieldset className="mt-6 grid gap-5 sm:grid-cols-2">
         <legend className="sr-only">Your details</legend>
         <Field id={id("fullName")} label="Full name" required error={errors.fullName}>
           <input
@@ -261,7 +277,7 @@ export function WaitlistForm() {
             maxLength={120}
             aria-invalid={!!errors.fullName}
             aria-describedby={describedBy("fullName")}
-            className={`${inputClass} ${errors.fullName ? "border-red" : "border-ink/15"}`}
+            className={fieldClass("fullName")}
           />
         </Field>
         <Field id={id("email")} label="Email address" required error={errors.email}>
@@ -275,10 +291,10 @@ export function WaitlistForm() {
             maxLength={254}
             aria-invalid={!!errors.email}
             aria-describedby={describedBy("email")}
-            className={`${inputClass} ${errors.email ? "border-red" : "border-ink/15"}`}
+            className={fieldClass("email")}
           />
         </Field>
-        <Field id={id("companyName")} label="Company / brand name" required error={errors.companyName}>
+        <Field id={id("companyName")} label="Company / brand name" required error={errors.companyName} className="sm:col-span-2">
           <input
             id={id("companyName")}
             name="companyName"
@@ -288,26 +304,12 @@ export function WaitlistForm() {
             maxLength={160}
             aria-invalid={!!errors.companyName}
             aria-describedby={describedBy("companyName")}
-            className={`${inputClass} ${errors.companyName ? "border-red" : "border-ink/15"}`}
-          />
-        </Field>
-        <Field id={id("websiteUrl")} label="Website or company URL" error={errors.websiteUrl}>
-          <input
-            id={id("websiteUrl")}
-            name="websiteUrl"
-            type="text"
-            inputMode="url"
-            autoComplete="url"
-            placeholder="yourcompany.com"
-            maxLength={300}
-            aria-invalid={!!errors.websiteUrl}
-            aria-describedby={describedBy("websiteUrl")}
-            className={`${inputClass} ${errors.websiteUrl ? "border-red" : "border-ink/15"}`}
+            className={fieldClass("companyName")}
           />
         </Field>
         <Field
           id={id("serviceInterest")}
-          label="Primary area of interest"
+          label="What do you need most?"
           required
           error={errors.serviceInterest}
           className="sm:col-span-2"
@@ -321,7 +323,7 @@ export function WaitlistForm() {
               onChange={(e) => setService(e.target.value)}
               aria-invalid={!!errors.serviceInterest}
               aria-describedby={describedBy("serviceInterest")}
-              className={`${inputClass} appearance-none pr-10 ${errors.serviceInterest ? "border-red" : "border-ink/15"}`}
+              className={`${fieldClass("serviceInterest")} appearance-none pr-10`}
             >
               <option value="" disabled>
                 Choose one…
@@ -337,77 +339,114 @@ export function WaitlistForm() {
         </Field>
       </fieldset>
 
-      <fieldset className="mt-10 grid gap-6 border-t border-ink/10 pt-8 sm:grid-cols-2">
-        <legend className="eyebrow float-left mb-6 w-full text-stone sm:col-span-2">
-          A little more context — optional
-        </legend>
-        {(
-          [
-            ["businessStage", "Business stage", STAGE_OPTIONS],
-            ["budgetRange", "Estimated project or monthly budget", BUDGET_OPTIONS],
-          ] as const
-        ).map(([name, label, options]) => (
-          <Field key={name} id={id(name)} label={label} error={errors[name]}>
-            <div className="relative">
-              <select
-                id={id(name)}
-                name={name}
-                defaultValue=""
-                aria-invalid={!!errors[name]}
-                aria-describedby={describedBy(name)}
-                className={`${inputClass} appearance-none pr-10 ${errors[name] ? "border-red" : "border-ink/15"}`}
-              >
-                <option value="">Select…</option>
-                {options.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <SelectArrow />
-            </div>
+      {/* Step 2: optional qualification details, collapsed by default */}
+      <details
+        ref={detailsRef}
+        className="group mt-7 rounded-2xl border border-ink/12 bg-cream/70 open:bg-cream"
+      >
+        <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-4 [&::-webkit-details-marker]:hidden">
+          <span>
+            <span className="block font-display text-base font-semibold text-ink">
+              Step 2 — Add project details{" "}
+              <span className="font-sans text-sm font-normal text-stone">(optional)</span>
+            </span>
+            <span className="mt-0.5 block text-sm text-stone">
+              Website, stage, budget, timing and your biggest challenge. Helps us prepare.
+            </span>
+            {optionalErrorCount > 0 && (
+              <span className="mt-1 block text-sm font-medium text-[#b42318]">
+                {optionalErrorCount === 1 ? "1 field needs attention" : `${optionalErrorCount} fields need attention`}
+              </span>
+            )}
+          </span>
+          <span
+            aria-hidden="true"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/20 text-lg leading-none text-ink transition-transform group-open:rotate-45"
+          >
+            +
+          </span>
+        </summary>
+
+        <div className="grid gap-5 border-t border-ink/10 px-5 pb-6 pt-5 sm:grid-cols-2">
+          <Field id={id("websiteUrl")} label="Website or company URL" error={errors.websiteUrl} className="sm:col-span-2">
+            <input
+              id={id("websiteUrl")}
+              name="websiteUrl"
+              type="text"
+              inputMode="url"
+              autoComplete="url"
+              placeholder="yourcompany.com"
+              maxLength={300}
+              aria-invalid={!!errors.websiteUrl}
+              aria-describedby={describedBy("websiteUrl")}
+              className={fieldClass("websiteUrl")}
+            />
           </Field>
-        ))}
-        <fieldset className="sm:col-span-2" aria-describedby={describedBy("timeline")}>
-          <legend className="flex w-full items-baseline justify-between gap-3 text-sm font-medium text-ink">
-            <span>How soon do you need support?</span>
-            <span className="text-xs font-normal text-stone">Optional</span>
-          </legend>
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {TIMELINE_OPTIONS.map((o) => (
-              <label
-                key={o.value}
-                className="flex cursor-pointer items-center justify-center rounded-xl border border-ink/15 bg-white/50 px-3 py-3 text-center text-sm transition-colors hover:border-ink/40 has-[:checked]:border-purple has-[:checked]:bg-purple has-[:checked]:text-cream has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-purple/40"
-              >
-                <input type="radio" name="timeline" value={o.value} className="sr-only" />
-                {o.label}
-              </label>
-            ))}
-          </div>
-          {errors.timeline && (
-            <p id={id("timeline-error")} className="mt-2 text-sm text-[#b42318]">
-              {errors.timeline}
-            </p>
-          )}
-        </fieldset>
-        <Field
-          id={id("biggestChallenge")}
-          label="Biggest technology or digital challenge"
-          hint="A sentence or two is plenty. Please don’t include passwords, financial records or customer data."
-          error={errors.biggestChallenge}
-          className="sm:col-span-2"
-        >
-          <textarea
+          {(
+            [
+              ["businessStage", "Business stage", STAGE_OPTIONS],
+              ["budgetRange", "Estimated project or monthly budget", BUDGET_OPTIONS],
+            ] as const
+          ).map(([name, label, options]) => (
+            <Field key={name} id={id(name)} label={label} error={errors[name]}>
+              <div className="relative">
+                <select
+                  id={id(name)}
+                  name={name}
+                  defaultValue=""
+                  aria-invalid={!!errors[name]}
+                  aria-describedby={describedBy(name)}
+                  className={`${fieldClass(name)} appearance-none pr-10`}
+                >
+                  <option value="">Select…</option>
+                  {options.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+                <SelectArrow />
+              </div>
+            </Field>
+          ))}
+          <fieldset className="sm:col-span-2" aria-describedby={describedBy("timeline")}>
+            <legend className="text-[0.95rem] font-medium text-ink">How soon do you need support?</legend>
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {TIMELINE_OPTIONS.map((o) => (
+                <label
+                  key={o.value}
+                  className="flex min-h-[48px] cursor-pointer items-center justify-center rounded-xl border border-ink/15 bg-white/70 px-3 py-2 text-center text-[0.95rem] transition-colors hover:border-ink/40 has-[:checked]:border-purple has-[:checked]:bg-purple has-[:checked]:text-cream has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-purple/40"
+                >
+                  <input type="radio" name="timeline" value={o.value} className="sr-only" />
+                  {o.label}
+                </label>
+              ))}
+            </div>
+            {errors.timeline && (
+              <p id={id("timeline-error")} className="mt-2 text-sm text-[#b42318]">
+                {errors.timeline}
+              </p>
+            )}
+          </fieldset>
+          <Field
             id={id("biggestChallenge")}
-            name="biggestChallenge"
-            rows={4}
-            maxLength={2000}
-            aria-invalid={!!errors.biggestChallenge}
-            aria-describedby={describedBy("biggestChallenge", true)}
-            className={`${inputClass} resize-y ${errors.biggestChallenge ? "border-red" : "border-ink/15"}`}
-          />
-        </Field>
-      </fieldset>
+            label="Biggest technology or digital challenge"
+            hint="A sentence or two is plenty. Please don’t include passwords, financial records or customer data."
+            error={errors.biggestChallenge}
+            className="sm:col-span-2"
+          >
+            <textarea
+              id={id("biggestChallenge")}
+              name="biggestChallenge"
+              rows={4}
+              maxLength={2000}
+              aria-invalid={!!errors.biggestChallenge}
+              aria-describedby={describedBy("biggestChallenge", true)}
+              className={`${fieldClass("biggestChallenge")} resize-y`}
+            />
+          </Field>
+        </div>
+      </details>
 
       {/* Honeypot — hidden from people and assistive tech. */}
       <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
@@ -415,9 +454,9 @@ export function WaitlistForm() {
         <input id={id("fax")} name="fax" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
       </div>
 
-      <div className="mt-10 space-y-4 border-t border-ink/10 pt-8">
+      <div className="mt-7 space-y-3">
         <div>
-          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-ink">
+          <label className="flex cursor-pointer items-start gap-3 py-1 text-[0.95rem] leading-relaxed text-ink">
             <input
               type="checkbox"
               name="privacyAcknowledged"
@@ -440,27 +479,25 @@ export function WaitlistForm() {
             </span>
           </label>
           {errors.privacyAcknowledged && (
-            <p id={id("privacyAcknowledged-error")} className="ml-8 mt-2 text-sm text-[#b42318]">
+            <p id={id("privacyAcknowledged-error")} className="ml-8 mt-1 text-sm text-[#b42318]">
               {errors.privacyAcknowledged}
             </p>
           )}
         </div>
-        <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-stone">
+        <label className="flex cursor-pointer items-start gap-3 py-1 text-[0.95rem] leading-relaxed text-stone">
           <input type="checkbox" name="marketingConsent" className="mt-0.5 h-5 w-5 shrink-0 accent-purple" />
-          <span>
-            Also send me occasional emails about Dash of Digital news and insights. Optional — unsubscribe anytime.
-          </span>
+          <span>Also send me occasional Dash of Digital news and insights. Optional, unsubscribe anytime.</span>
         </label>
       </div>
 
       {TURNSTILE_SITE_KEY && (
-        <div className="cf-turnstile mt-8" data-sitekey={TURNSTILE_SITE_KEY} data-theme="light" />
+        <div className="cf-turnstile mt-7" data-sitekey={TURNSTILE_SITE_KEY} data-theme="light" />
       )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="group mt-8 inline-flex h-14 w-full items-center justify-center gap-3 rounded-full bg-ink px-8 text-base font-medium text-cream transition-colors hover:bg-purple disabled:cursor-wait disabled:opacity-80 sm:w-auto"
+        className="group mt-7 inline-flex h-14 w-full items-center justify-center gap-3 rounded-full bg-ink px-8 text-base font-semibold text-cream transition-colors hover:bg-purple disabled:cursor-wait disabled:opacity-80"
       >
         {submitting ? (
           <>
