@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0b0b0d;
+  --color-ink-2: #151519;
+  --color-ink-3: #232329;
+  --color-cream: #f5efe4;
+  --color-cream-2: #ebe3d4;
+  --color-cream-3: #d9cfbd;
+  --color-purple: #6f3fc5;
+  --color-purple-deep: #5a2fa8;
+  /* Lighter tint of Dash Purple for text on Ink (meets WCAG AA). */
+  --color-lilac: #b9a0ee;
+  --color-red: #e33b30;
+  --color-magenta: #d83b7d;
+  --color-stone: #5d574e;
+  --color-mist: #a7a19a;
+
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-purple);
+    color: var(--color-cream);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-magenta);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  .on-cream :focus-visible {
+    outline-color: var(--color-purple);
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+  .rule {
+    height: 1px;
+    background: currentColor;
+    opacity: 0.18;
+  }
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, rgb(245 239 228 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(245 239 228 / 0.05) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+}
+
+/* Scroll-reveal: content is visible without JS; .js is set by an inline script. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.9s var(--ease-out-expo),
+    transform 0.9s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Systems diagram motion */
+@keyframes signal {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+@keyframes pulse-node {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.signal-path {
+  stroke-dasharray: 3 9;
+  animation: signal 2.4s linear infinite;
+}
+.pulse-node {
+  animation: pulse-node 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .signal-path,
+  .pulse-node {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
