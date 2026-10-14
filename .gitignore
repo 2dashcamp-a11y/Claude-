@@ -45,3 +45,5 @@ next-env.d.ts
 # local QA output & exports (contain personal data)
 /qa-screenshots
 waitlist-export-*.csv
+
+/dist

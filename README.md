@@ -1,5 +1,9 @@
 # Dash of Digital — landing page & early-access waitlist
 
+> **Deploying to Hostinger?** Read [docs/HOSTINGER-DEPLOY.md](docs/HOSTINGER-DEPLOY.md). Build the upload package with
+> `SITE_URL=https://yourdomain.com npm run build:hostinger`. That produces a static site plus a PHP + MySQL form endpoint, with no Node.js, Supabase or Vercel needed.
+> The Supabase/Vercel instructions below apply only to the alternative Node deployment.
+
 Production-ready, single-page agency site for **Dash of Digital LLC** with a database-backed waitlist.
 
 - **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Supabase (Postgres) · Resend (email, optional) · Vercel
@@ -42,7 +46,9 @@ docs/QA.md                  QA checklist: what's verified and what isn't
 docs/ROADMAP.md             DASH HQ / CRM integration roadmap
 docs/DESIGN-REFINEMENT.md   What the design refinement passes changed
 docs/BRAND-ASSETS.md        Logo files, palette, typography
-docs/LAUNCH-CHECKLIST.md    Verified launch items + unresolved decisions
+docs/LAUNCH-CHECKLIST.md    Verified launch items + pending live checks
+docs/HOSTINGER-DEPLOY.md    Hostinger upload, config, DNS/SSL, post-launch verification
+hostinger/                  PHP waitlist endpoint, MySQL schema, .htaccess template, config sample
 brand-source/               Founder-provided original logo artwork (unchanged)
 docs/WORDPRESS-CONVERSION-PLAN.md  Plan for the WordPress block theme + waitlist plugin
 .env.example                Every environment variable, documented

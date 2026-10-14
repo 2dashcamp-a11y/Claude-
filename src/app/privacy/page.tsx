@@ -36,9 +36,9 @@ export default function PrivacyPage() {
         data through this website. We don’t ask for it and don’t want it.
       </p>
       <p>
-        When you submit the form, your IP address is used briefly in memory to limit repeated submissions and protect
-        against spam. We don’t store it with your entry. Our hosting provider may keep standard server logs (such as
-        IP address, browser type, and pages requested) for security and reliability.
+        When you submit the form, a one-way hashed version of your IP address is kept for up to 24 hours to limit
+        repeated submissions and protect against spam. It is not stored with your entry. Our hosting provider may keep
+        standard server logs (such as IP address, browser type, and pages requested) for security and reliability.
       </p>
       <p>
         This website does not use advertising or analytics cookies, and fonts are served from our own domain.
@@ -61,13 +61,8 @@ export default function PrivacyPage() {
       <p>We use a small number of providers to run this website. They process data on our behalf:</p>
       <ul>
         <li>
-          <strong>Supabase</strong> — stores early-access submissions in a secured database.
-        </li>
-        <li>
-          <strong>Vercel</strong> — hosts the website and processes requests to it.
-        </li>
-        <li>
-          <strong>Resend</strong> — delivers confirmation and internal notification emails.
+          <strong>Hostinger</strong> — hosts the website, stores early-access submissions in a secured database, and
+          delivers confirmation and internal notification emails.
         </li>
         <li>
           <strong>Cloudflare Turnstile</strong> — if enabled, checks that submissions come from a person rather than a
@@ -75,7 +70,7 @@ export default function PrivacyPage() {
         </li>
       </ul>
       <p>
-        These providers may process data in the United States. We may also disclose information if required by law or
+        These providers may process data in the United States or other countries where they operate. We may also disclose information if required by law or
         to protect our rights, or as part of a business transfer such as a merger or sale.
       </p>
 

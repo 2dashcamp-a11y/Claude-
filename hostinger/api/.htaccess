@@ -1,0 +1,4 @@
+# Internal files in this folder are never served.
+<FilesMatch "^(_config\.php|schema\.sql|\.htaccess)$">
+  Require all denied
+</FilesMatch>
