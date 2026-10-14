@@ -526,6 +526,9 @@ function smtp_send(array $config, string $to, array $msg): void
     $secure = strtolower((string) cfg($config, 'SMTP_SECURE', 'ssl'));
     $user = cfg($config, 'SMTP_USER', '');
     $pass = (string) ($config['SMTP_PASS'] ?? '');
+    if (str_contains((string) $host, 'gmail.com')) {
+        $pass = str_replace(' ', '', $pass); // Google shows app passwords as "abcd efgh ijkl mnop"
+    }
     $from = cfg($config, 'MAIL_FROM');
 
     $remote = ($secure === 'ssl' ? 'ssl://' : 'tcp://') . $host . ':' . $port;
@@ -597,7 +600,8 @@ function send_mail(array $config, string $to, array $msg): void
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
         throw new RuntimeException('Invalid recipient');
     }
-    if (cfg($config, 'SMTP_HOST')) {
+    // Use SMTP only when fully configured (host + password, or an unauthenticated relay).
+    if (cfg($config, 'SMTP_HOST') && (!cfg($config, 'SMTP_USER') || cfg($config, 'SMTP_PASS'))) {
         smtp_send($config, $to, $msg);
         return;
     }

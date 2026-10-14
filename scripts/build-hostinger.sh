@@ -40,6 +40,12 @@ return [
     'SEND_CONFIRMATION' => true,
     'IP_SALT' => '$IP_SALT',
     'EXPORT_KEY' => '$EXPORT_KEY',
+    // Email sending. Leave SMTP_PASS empty to use the server's built-in mail().
+    'SMTP_HOST' => '${SMTP_HOST:-}',
+    'SMTP_PORT' => ${SMTP_PORT:-465},
+    'SMTP_SECURE' => 'ssl',
+    'SMTP_USER' => '${SMTP_USER:-}',
+    'SMTP_PASS' => '', // <- paste your Gmail App Password between the quotes
     'PRIVACY_POLICY_VERSION' => '2026-10-14',
 ];
 PHP
